@@ -22,7 +22,8 @@ x-airflow-common: &airflow-common
     - ./data:/opt/airflow/data
     - ./models:/opt/airflow/models
     - ./reports:/opt/airflow/reports
-    - ./student_mental_health.csv:/opt/airflow/student_mental_health.csv
+    - ./student_mental_health:/opt/airflow/student_mental_health.csv
+    - ./include:/opt/airflow/include
 
   user: "${AIRFLOW_UID:-50000}:0"
 

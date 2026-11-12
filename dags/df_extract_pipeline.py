@@ -9,13 +9,12 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 sys.path.append("/opt/airflow")
 
 def run_cell(cell_number):
-    notebook = nbformat.read("/opt/airflow/main.ipynb", as_version=4)
-    exec(notebook.cells[cell_number].source)
+    notebook = nbformat.read("/opt/airflow/include/main.ipynb", as_version=4)
 
-def generate_json_file(student_mental_health_data):
-    file_path = "/opt/airflow/data/data.json"
-    with open(file_path, "w") as f:
-        json.dump(student_mental_health_data, f)
+    variables = {}
+    exec(notebook.cells[cell_number].source, variables)
+
+    return variables["df"].to_dict(orient="records")
 
 with DAG(
     dag_id="student_mental_health_data_extraction",
@@ -30,15 +29,9 @@ with DAG(
         op_args=[0]
     )
 
-    generate_json_task = PythonOperator(
-        task_id="generate_json",
-        python_callable=generate_json_file,
-        op_args=[extract_task.output]
-    )
-
     trigger_dag_2 = TriggerDagRunOperator(
         task_id="trigger_dw_update",
-        trigger_dag_id="preproccessing"
+        trigger_dag_id="student_mental_health_data_preproccessing"
     )
 
-    extract_task >> generate_json_task >> trigger_dag_2
+    extract_task >>  trigger_dag_2
