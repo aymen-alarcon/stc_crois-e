@@ -58,6 +58,7 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
+    build: .
     command: webserver
 
     ports:
